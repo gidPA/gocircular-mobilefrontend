@@ -1,0 +1,7 @@
+{
+  "name": "gocircular-mobilefrontend",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
