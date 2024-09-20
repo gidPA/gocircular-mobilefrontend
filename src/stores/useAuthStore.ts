@@ -12,6 +12,7 @@ export interface Credentials {
 export interface AuthResponse {
     accessToken: string | null,
     refreshToken: string | null,
+    userid: number | null,
     role: string | null
 }           
 
@@ -20,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
         return {
             accessToken: null as string | null,
             refreshToken: null as string | null,
-            user: null as string | null,
+            userid: null as number | null,
         }
     },
     actions: {
@@ -42,11 +43,13 @@ export const useAuthStore = defineStore('auth', {
 
                 this.accessToken = data.accessToken;
                 this.refreshToken = data.refreshToken;
-                this.user = data.user;
+                this.userid = data.userid;
 
                 // Save tokens to Ionic Storage
                 await storage.set('accessToken', data.accessToken);
                 await storage.set('refreshToken', data.refreshToken);
+                await storage.set('userid', data.userid);
+                await storage.set('role', data.role);
             } catch (error) {
                 console.error('Login error:', error);
                 // Handle error (e.g., show a notification)
@@ -56,11 +59,14 @@ export const useAuthStore = defineStore('auth', {
         async logout() {
             this.accessToken = null;
             this.refreshToken = null;
-            this.user = null;
+            this.userid = null;
+
 
             // Remove tokens from Ionic Storage
             await storage.remove('accessToken');
             await storage.remove('refreshToken');
+            await storage.remove('userid');
+            await storage.remove('role');
         },
 
         async refreshAccessToken() {
@@ -83,10 +89,12 @@ export const useAuthStore = defineStore('auth', {
         async checkAuth() {
             const accessToken = await storage.get('accessToken');
             const refreshToken = await storage.get('refreshToken');
+            const userid = await storage.get('userid');
 
-            if (accessToken && refreshToken) {
+            if (accessToken && refreshToken && userid) {
                 this.accessToken = accessToken;
                 this.refreshToken = refreshToken;
+                this.userid = userid;
 
 
                 // Optional: Validate the access token with a fetch request
