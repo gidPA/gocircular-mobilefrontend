@@ -1,61 +1,187 @@
 import { defineStore } from "pinia";
-import { useMqttStore } from "./useMqttStore";
-import { RecyclableItem, ItemSize, ItemType } from "@/types/recyclable";
-import {watch} from "vue";
+import { useMQTT } from "mqtt-vue-hook";
+import {
+    ItemType,
+    ItemSize,
+    type RecyclableItem,
+    type RecyclableEntryMessage
+} from "@/types/recyclable";
 
-interface PendingItemMessage{
-    pendingItem: Array<number>;
+import {
+    TransactionProgressState
+} from "@/types/transaction"
+
+const mqttHook = useMQTT();
+
+interface TransactionState{
+    rvmId: null | number;
+    isConnected: boolean;
+    progressState: TransactionProgressState;
+    items: Array<RecyclableItem>;
+    itemIndex: number;
+
+    topicSubscription: Array<string>
 }
 
-interface ItemEntryMessage{
-    enteredItem: Array<number>;
-}
 
 
-export const useTransactionStore = defineStore("transaction", {
-    state: () => ({
-        rvmid: null as null | number,
-        items: [] as Array<RecyclableItem>,
-        itemIndex: 0 as number,
-        completed: false as boolean,
+export const useTransactionStore = defineStore('transaction', 
+{
+    state: (): TransactionState => ({
+        rvmId: null,
+        isConnected: false,
+        progressState: TransactionProgressState.Inactive,
+        items: [],
+        itemIndex: 0,
+
+        topicSubscription: [],
     }),
+    getters: {
+        
+    }
+    ,
     actions: {
-        setupRecyclableWatcher(){
-            const mqttStore = useMqttStore();
-            
-            watch(
-                () => mqttStore.messages,
-                (updatedMessages) => {
-                    const newestMessage = updatedMessages.splice(0,0)[1];
-                    if(newestMessage.topic === `gocircular/rvm/${this.rvmid}/output/transaction/pendingItem`){
-                        const itemObj: PendingItemMessage = JSON.parse(newestMessage.message);
+        async initializeTransaction(rvmId: number){
+            // const mqttHost = import.meta.env.VITE_GOCIRCULAR_MQTT_BROKER;
 
-                        this.items[this.itemIndex] = {
-                            itemType: ItemType[itemObj.pendingItem[0]],
-                            itemSize: ItemSize[itemObj.pendingItem[1]],
-                            itemPrice: null
+            try{
+                if(!mqttHook.isConnected()){
+                    this.topicSubscription.push(`gocircular/rvm/${rvmId}/output/member_mode_ack`);
+                    this.topicSubscription.push(`gocircular/rvm/${rvmId}/output/pending_item`);
+                    this.topicSubscription.push(`gocircular/rvm/${rvmId}/output/entered_item`);
+
+                    console.log(this.topicSubscription);
+
+                    await mqttHook.registerEvent(
+                        'on-connect',
+                        () => {
+                            // mqttHook.subscribe([`gocircular/rvm/${rvmId}/output/member_mode_ack`], 0);
+                            // mqttHook.subscribe([`gocircular/rvm/${rvmId}/output/pending_item`], 0);
+                            // mqttHook.subscribe([`gocircular/rvm/${rvmId}/output/entered_item`], 0);
+
+                            mqttHook.subscribe(this.topicSubscription, 0);
+
+                            this.isConnected = true;
                         }
+                    );
 
-                    } else if(newestMessage.topic === `gocircular/rvm/${this.rvmid}/output/transaction/EnteredItem`){
-                        const itemObj: ItemEntryMessage = JSON.parse(newestMessage.message);
-
-                        this.items[this.itemIndex] = {
-                            itemType: ItemType[itemObj.enteredItem[0]],
-                            itemSize: ItemSize[itemObj.enteredItem[1]],
-                            itemPrice: itemObj.enteredItem[2]
+                    await mqttHook.connect(
+                        import.meta.env.VITE_GOCIRCULAR_MQTT_BROKER,
+                        {
+                            clean: false,
+                            keepalive: 60,
+                            clientId: import.meta.env.VITE_GOCIRCULAR_MQTT_ID,
+                            username: import.meta.env.VITE_GOCIRCULAR_MQTT_ID,
+                            password: import.meta.env.VITE_GOCIRCULAR_MQTT_PASSWORD,
+                            path: "/mqtt",
+                            connectTimeout: 4000
                         }
+                    );
 
-                        this.itemIndex += 1;
-                    } else if (newestMessage.topic === `gocircular/rvm/${this.rvmid}/output/transaction/report`){
-                        this.completed = true;
-                        this.itemIndex = 0;
-                    } else {
-                        console.log("Message with unhandled topic received");
-                    }
+                    const timeoutTimer = setTimeout(
+                        () => {
+                            this.progressState = TransactionProgressState.TimeoutError;
+                        },
+                        10000
+                    )
+
+                    await mqttHook.registerEvent(
+                        `gocircular/rvm/${rvmId}/output/member_mode_ack`,
+                        (topic: string, message: string) => {
+                            console.log(`Received approval message ${message}`);
+                            this.progressState = Number(message.toString());
+                            clearTimeout(timeoutTimer);
+                        },
+                    );
+
+                    await mqttHook.registerEvent(
+                        `gocircular/rvm/${rvmId}/output/pending_item`,
+                        (topic: string, message: string) => {
+                            const messageObj: RecyclableEntryMessage
+                                = JSON.parse(message.toString());
+                            const newItem: RecyclableItem = {
+                                itemType: ItemType[messageObj.enteredItem[0]],
+                                itemSize: ItemSize[messageObj.enteredItem[1]],
+                                itemPrice: null
+                            };
+                            this.items[this.itemIndex] = newItem;
+                        }
+                    );
+
+                    await mqttHook.registerEvent(
+                        `gocircular/rvm/${rvmId}/output/entered_item`,
+                        (topic: string, message: string) => {
+                            const messageObj: RecyclableEntryMessage = JSON.parse(message.toString());
+                            const newItem: RecyclableItem = {
+                                itemType: ItemType[messageObj.enteredItem[0]],
+                                itemSize: ItemSize[messageObj.enteredItem[1]],
+                                itemPrice: messageObj.enteredItem[2],
+                            };
+
+                            //Enter current items with the price
+                            this.items[this.itemIndex] = newItem;
+                            
+                            //Increment item Index so that next item enters in the next index
+                            this.itemIndex += 1;
+                        }
+                    );
+
+                    await mqttHook.registerEvent(
+                        `gocircular/rvm/${rvmId}/output/transaction_report`,
+                        (topic: string, message: string) => {     
+                            this.progressState = TransactionProgressState.Completed;
+                            
+                            const messageObj: RecyclableEntryMessage
+                                = JSON.parse(message.toString());
+                            const newItem: RecyclableItem = {
+                                itemType: ItemType[messageObj.enteredItem[0]],
+                                itemSize: ItemSize[messageObj.enteredItem[1]],
+                                itemPrice: null
+                            };
+                            this.items[this.itemIndex] = newItem;
+                        }
+                    );
+
+
+                    console.log("Publishing Approval message");
+
+
+
+                    await mqttHook.publish(
+                        `gocircular/rvm/${rvmId}/input/member_mode_req`,
+                        "1",
+                        0
+                    );
+
+
                 }
-            )
+            } catch(err) {
+                console.log(err);
+
+            }
+
+
+        },
+        
+        async endTransaction(){
+            if(mqttHook.isConnected()){
+                this.topicSubscription.forEach(
+                    async (topic) => {
+                        await mqttHook.unSubscribe(topic, () => {
+                            console.log(`unsubscribed from topic: ${topic}`);
+                        });
+                    }
+                );
+            }
         },
 
+        async completeTransaction(){
+            await this.endTransaction();
+            this.progressState = TransactionProgressState.Completed;
+        },
 
+        async abortTransaction(){
+            await this.endTransaction();
+        }
     }
-})
+});

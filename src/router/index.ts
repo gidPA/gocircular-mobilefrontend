@@ -3,6 +3,10 @@ import { RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import LoginPage from "../pages/LoginPage.vue";
 import HomePage from '@/pages/HomePage.vue';
+import QRCodeScan from "@/pages/QRCodeScan.vue";
+import TransactionViewer from '@/pages/TransactionViewer.vue';
+import FailedView from '@/pages/FailedView.vue';
+
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -21,7 +25,31 @@ const routes: Array<RouteRecordRaw> = [
     meta:{
       requiresAuth: true
     }
-  }
+  },
+  {
+    path: '/qr-code-scan',
+    name: 'QR Code Scan',
+    component: QRCodeScan,
+    meta:{
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/transaction-viewer',
+    name: 'Transaction Viewer',
+    component: TransactionViewer,
+    meta:{
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/failed-view',
+    name: 'Fail View',
+    component: FailedView,
+    meta:{
+      requiresAuth: true
+    }
+  },
 ]
 
 const router = createRouter({

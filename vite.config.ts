@@ -19,5 +19,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom'
-  }
+  },
+  base: "https://192.168.0.178/mobile"
 })

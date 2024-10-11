@@ -12,9 +12,10 @@
                 </h1>
             </ion-text>
 
-            <ion-button expand="full">
+            <ion-button expand="full" router-link="/qr-code-scan">
                 <h1>Scan</h1>
-                <h2>Kode QR untuk menukar</h2>
+                <h2>A QR Code</h2>
+                <h2>To Begin</h2>
             </ion-button>
 
             <ion-button expand="full">
