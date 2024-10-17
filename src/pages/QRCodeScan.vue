@@ -8,7 +8,7 @@
                 <p>Scanned RVM ID: {{ rvmID }}</p>
                 <p v-if="error">{{ error }}</p>
             </ion-text>
-            <div class="qr-code-scanner">
+            <div class="qr-code-scanner" v-if="cameraIsActive">
                 <div class="camera-view">
                     <qrcode-stream @detect="onDetect" @error="onError">
                     </qrcode-stream>
@@ -25,6 +25,8 @@ import {
     IonPage,
     IonContent,
     IonText,
+    onIonViewDidEnter,
+    onIonViewDidLeave,
 
 } from "@ionic/vue";
 
@@ -44,7 +46,7 @@ import {useRouter} from "vue-router";
 
 const rvmID = ref<number>(0);
 const error = ref('');
-
+const cameraIsActive = ref<boolean>(false);
 const router = useRouter();
 const transactionStore = useTransactionStore();
 const { progressState } = storeToRefs(transactionStore);
@@ -71,6 +73,15 @@ function onError(err: Error) {
     }
 }
 
+onIonViewDidEnter(() => {
+    console.log("Entered QR Code view");
+    cameraIsActive.value = true;
+});
+
+onIonViewDidLeave(() => {
+    console.log("Exiting QR Code view");
+    cameraIsActive.value = false;
+});
 
 // I know I should not use 'any' type, but I couldn't find any type specification from 
 // the docs
@@ -102,12 +113,13 @@ watch(
 
         if (state !== TransactionProgressState.Inactive) {
             if (state === TransactionProgressState.Approved) {
-                router.push({
-                    name: 'transaction-view'
+                console.log("Can proceed");
+                router.replace({
+                    name: 'Transaction Viewer'
                 });
             } else {
                 router.push({
-                    name: 'fail-view',
+                    name: 'Fail View',
                     query: {
                         failid: (Number(state)).toString()
                     }

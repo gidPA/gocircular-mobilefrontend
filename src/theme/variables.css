@@ -76,3 +76,21 @@ http://ionicframework.com/docs/theming/ */
 	--ion-color-dark-tint: #444444;
 
 }
+
+.base-layout{
+	padding-left: 5vw;
+	padding-right: 5vw;
+	padding-top: 5vh;
+	padding-bottom: 5vh;
+
+	height: 98vh;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+}
+
+ion-button{
+	text-transform: none;
+}

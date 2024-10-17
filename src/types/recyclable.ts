@@ -24,9 +24,11 @@ export const ThumbnailLink: Array<string> =
 
 
 export interface RecyclableItem{
+    itemMessage: Array<number>;
+    itemIndex: number;
     itemType: string;
     itemSize: string;
-    itemPrice: number | null;
+    itemPrice: number;
 }
 
 export interface RecyclableEntryMessage{
@@ -34,7 +36,7 @@ export interface RecyclableEntryMessage{
 }
 
 export interface TransactionReportMessage{
-    transactionDate: Date;
+    transactionDate: string;
     userId: number;
     rvmId: number;
     recyclableItems: Array<Array<number>>;

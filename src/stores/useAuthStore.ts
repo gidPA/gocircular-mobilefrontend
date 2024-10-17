@@ -72,8 +72,13 @@ export const useAuthStore = defineStore('auth', {
         async refreshAccessToken() {
             try {
                 const response = await axios.post(
-                    `${import.meta.env.VITE_GOCIRCULAR_API_URL}/user/login`,
-                    JSON.stringify({refreshToken: this.refreshToken})
+                    `${import.meta.env.VITE_GOCIRCULAR_API_URL}/user/renew`,
+                    {refreshToken: this.refreshToken},
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }
                 )
                 this.accessToken = response.data.accessToken;
                 this.refreshToken = response.data.refreshToken;

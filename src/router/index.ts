@@ -6,6 +6,7 @@ import HomePage from '@/pages/HomePage.vue';
 import QRCodeScan from "@/pages/QRCodeScan.vue";
 import TransactionViewer from '@/pages/TransactionViewer.vue';
 import FailedView from '@/pages/FailedView.vue';
+import TransactionRecap from '@/pages/TransactionRecap.vue';
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -46,6 +47,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/failed-view',
     name: 'Fail View',
     component: FailedView,
+    meta:{
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/transaction-recap',
+    name: 'Transaction Recap',
+    component: TransactionRecap,
     meta:{
       requiresAuth: true
     }
