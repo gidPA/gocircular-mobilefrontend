@@ -7,7 +7,7 @@
                 </ion-img>
 
                 <ion-text class="ion-text-center">
-                    <h1>GoCircular Companion App</h1>
+                    <h1>GoCircular <br> Companion App</h1>
                 </ion-text>
 
                 <div class="login-form">
@@ -29,9 +29,11 @@
 
                     </div>
                     <ion-button expand="full" @click="handleLogin">Login</ion-button>
-                    <ion-button expand="full" @click="handleLogin">Register New Account</ion-button>
-                </div>
 
+                </div>
+                <ion-text class="ion-text-center" color="medium">
+                    <p>Not a member? <RouterLink to="/register">Register now</RouterLink></p>
+                </ion-text>
             </div>
 
 

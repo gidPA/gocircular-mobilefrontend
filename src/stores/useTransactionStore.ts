@@ -233,12 +233,10 @@ export const useTransactionStore = defineStore('transaction',
                             });
                         }
                     );
+                    mqttHook.disconnect();
+                    Object.assign(this, this.$reset());
                 }
-            },
 
-            async completeTransaction() {
-                await this.endTransaction();
-                this.progressState = TransactionProgressState.Completed;
             },
 
             async abortTransaction() {

@@ -14,7 +14,8 @@
 
                 <ion-list>
                     <ion-item v-for="item in items" v-bind:key="item.itemIndex">
-                        <ion-img slot="start" :src="thumbnailSelector(item.itemMessage[0])" class="item-thumb"></ion-img>
+                        <ion-img slot="start" :src="thumbnailSelector(item.itemMessage[0])"
+                            class="item-thumb"></ion-img>
                         <ion-label>
                             <h2>{{ item.itemType }}</h2>
                             <p>{{ item.itemSize }}</p>
@@ -52,20 +53,38 @@ import {
     IonText
 } from "@ionic/vue"
 
-// import {
-//     ref
-// } from "vue";
+import {
+    watch
+} from "vue";
 
 // const imgSource = ref("/mobile/src/assets/transparent_bottle_minified.png");
 import { useTransactionStore } from '@/stores/useTransactionStore';
 import { storeToRefs } from 'pinia';
+import { TransactionProgressState } from "@/types/transaction";
+import { useRouter } from "vue-router";
 
 const transactionStore = useTransactionStore();
+const router = useRouter();
 
-const { items, rvmId, pointsEarned } = storeToRefs(transactionStore);
+const { items, rvmId, pointsEarned, progressState } = storeToRefs(transactionStore);
 
-function thumbnailSelector(itemEnumerator:number):string{
-    switch(itemEnumerator){
+watch(
+    progressState,
+    (state) => {
+        console.log(state);
+        console.log(Number(state));
+
+        if (state !== TransactionProgressState.Inactive) {
+            if (state === TransactionProgressState.Completed) {
+                console.log("Transaction Finished");
+                router.replace("/transaction-recap");
+            }
+        }
+    }
+)
+
+function thumbnailSelector(itemEnumerator: number): string {
+    switch (itemEnumerator) {
         case 1:
             return "/mobile/src/assets/transparent_bottle_minified.png";
         case 2:

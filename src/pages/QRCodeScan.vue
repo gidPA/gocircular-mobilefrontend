@@ -1,20 +1,21 @@
 <template>
     <ion-page>
         <ion-content>
-            <ion-text>
-                <h1>Scan the QR Code Attached on the RVM to Begin</h1>
-            </ion-text>
-            <ion-text>
-                <p>Scanned RVM ID: {{ rvmID }}</p>
-                <p v-if="error">{{ error }}</p>
-            </ion-text>
-            <div class="qr-code-scanner" v-if="cameraIsActive">
-                <div class="camera-view">
-                    <qrcode-stream @detect="onDetect" @error="onError">
-                    </qrcode-stream>
+            <div class="base-layout">
+                <ion-text class="ion-text-center">
+                    <h1>Scan the QR Code Attached on the RVM to Begin</h1>
+                </ion-text>
+                <ion-text class="ion-text-center">
+                    <p>Scanned RVM ID: {{ rvmID }}</p>
+                    <p v-if="error">{{ error }}</p>
+                </ion-text>
+                <div class="qr-code-scanner" v-if="cameraIsActive">
+                    <div class="camera-view">
+                        <qrcode-stream @detect="onDetect" @error="onError">
+                        </qrcode-stream>
+                    </div>
                 </div>
             </div>
-
         </ion-content>
 
     </ion-page>
@@ -42,7 +43,7 @@ import {
 import { useTransactionStore } from "@/stores/useTransactionStore";
 import { storeToRefs } from "pinia";
 import { TransactionProgressState } from "@/types/transaction";
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 
 const rvmID = ref<number>(0);
 const error = ref('');
@@ -118,7 +119,7 @@ watch(
                     name: 'Transaction Viewer'
                 });
             } else {
-                router.push({
+                router.replace({
                     name: 'Fail View',
                     query: {
                         failid: (Number(state)).toString()

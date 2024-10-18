@@ -1,12 +1,6 @@
 import { createRouter, createWebHistory, } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
-import LoginPage from "../pages/LoginPage.vue";
-import HomePage from '@/pages/HomePage.vue';
-import QRCodeScan from "@/pages/QRCodeScan.vue";
-import TransactionViewer from '@/pages/TransactionViewer.vue';
-import FailedView from '@/pages/FailedView.vue';
-import TransactionRecap from '@/pages/TransactionRecap.vue';
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -17,49 +11,61 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'Login',
-    component: LoginPage    
+    component: () => import('@/pages/LoginPage.vue')
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/pages/RegisterPage.vue')
+  },
+  {
+    path: '/register-success',
+    name: 'Registration Successful',
+    component: () => import('@/pages/RegistrationSuccess.vue')
   },
   {
     path: '/homepage',
     name: 'Homepage',
-    component: HomePage,
-    meta:{
+    component: () => import('@/pages/HomePage.vue'),
+    meta: {
       requiresAuth: true
     }
   },
   {
     path: '/qr-code-scan',
     name: 'QR Code Scan',
-    component: QRCodeScan,
-    meta:{
+    component: () => import('@/pages/QRCodeScan.vue'),
+    meta: {
       requiresAuth: true
     }
   },
   {
     path: '/transaction-viewer',
     name: 'Transaction Viewer',
-    component: TransactionViewer,
-    meta:{
+    component: () => import('@/pages/TransactionViewer.vue'),
+    meta: {
       requiresAuth: true
     }
   },
   {
     path: '/failed-view',
     name: 'Fail View',
-    component: FailedView,
-    meta:{
+    component: () => import('@/pages/FailedView.vue'),
+    meta: {
       requiresAuth: true
     }
   },
   {
     path: '/transaction-recap',
     name: 'Transaction Recap',
-    component: TransactionRecap,
-    meta:{
+    component: () => import('@/pages/TransactionRecap.vue'),
+    meta: {
       requiresAuth: true
     }
   },
-]
+];
+
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
