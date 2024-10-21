@@ -56,6 +56,7 @@ import {
 import { ref } from 'vue';
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from '@/stores/useAuthStore';
+import { AxiosError } from 'axios';
 
 const router = useRouter();
 const route = useRoute();
@@ -85,7 +86,12 @@ const handleLogin = async () => {
     } catch (err) {
 
         console.log(err);
+        if (err instanceof AxiosError){
+            if (err.response?.status === 401){
+                loginFailed.value = true;
+        }
     }
+}
 
 }
 </script>

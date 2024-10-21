@@ -22,6 +22,8 @@ export const useAuthStore = defineStore('auth', {
             accessToken: null as string | null,
             refreshToken: null as string | null,
             userid: null as number | null,
+            username: null as string | null,
+            email: null as string | null,
         }
     },
     actions: {
@@ -40,16 +42,20 @@ export const useAuthStore = defineStore('auth', {
                 )
 
                 const data = response.data;
+                console.log(response.data);
 
                 this.accessToken = data.accessToken;
                 this.refreshToken = data.refreshToken;
                 this.userid = data.userid;
+                this.username = data.username;
+                this.email = data.email;
 
                 // Save tokens to Ionic Storage
                 await storage.set('accessToken', data.accessToken);
                 await storage.set('refreshToken', data.refreshToken);
                 await storage.set('userid', data.userid);
-                await storage.set('role', data.role);
+                await storage.set('username', data.username);
+                await storage.set('email', data.email);
             } catch (error) {
                 console.error('Login error:', error);
                 // Handle error (e.g., show a notification)
@@ -60,13 +66,16 @@ export const useAuthStore = defineStore('auth', {
             this.accessToken = null;
             this.refreshToken = null;
             this.userid = null;
+            this.username = null;
+            this.email = null;
 
 
             // Remove tokens from Ionic Storage
             await storage.remove('accessToken');
             await storage.remove('refreshToken');
             await storage.remove('userid');
-            await storage.remove('role');
+            await storage.remove('username');
+            await storage.remove('email');
         },
 
         async refreshAccessToken() {
@@ -95,12 +104,16 @@ export const useAuthStore = defineStore('auth', {
             const accessToken = await storage.get('accessToken');
             const refreshToken = await storage.get('refreshToken');
             const userid = await storage.get('userid');
+            const username = await storage.get('username');
+            const email = await storage.get('email');
+
 
             if (accessToken && refreshToken && userid) {
                 this.accessToken = accessToken;
                 this.refreshToken = refreshToken;
                 this.userid = userid;
-
+                this.username = username;
+                this.email = email;
 
                 // Optional: Validate the access token with a fetch request
                 // If expired, call refreshAccessToken()

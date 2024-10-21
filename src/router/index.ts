@@ -32,6 +32,14 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/profile-view',
+    name: 'Profile View',
+    component: () => import('@/pages/ProfileView.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/qr-code-scan',
     name: 'QR Code Scan',
     component: () => import('@/pages/QRCodeScan.vue'),

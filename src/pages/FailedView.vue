@@ -6,18 +6,21 @@
                 <ion-img :src="imgDir" class="sadface">
 
                 </ion-img>
-                <div class="explanation-label"> 
-                    <h1>
-                    Unable to begin transaction
-                </h1>
-                <p>{{ failureReason }}</p>
+                <div class="explanation-label">
+                    <ion-text class="ion-text-center">
+                        <h1>
+                            Unable to begin transaction
+                        </h1>
+                        <p>{{ failureReason }}</p>
+                    </ion-text>
+
 
                 </div>
 
 
 
 
-                <ion-button expand="full" class="stick-bottom">
+                <ion-button expand="full" @click="backToHome" class="stick-bottom">
                     Back to Home Page
                 </ion-button>
             </div>
@@ -28,18 +31,24 @@
 </template>
 
 <script setup lang="ts">
-import{
+import {
     IonButton,
     IonPage,
     IonContent,
     IonImg,
+    IonText
 
 } from "@ionic/vue";
-import { ref, computed } from "vue";
+import { ref, computed, } from "vue";
 import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
+import { useTransactionStore } from "@/stores/useTransactionStore";
+
 
 
 const route = useRoute();
+const router = useRouter();
+const transactionStore = useTransactionStore();
 
 const imgDir = ref("/mobile/src/assets/sadface.png");
 
@@ -52,7 +61,7 @@ const queryId = computed(() => {
 // Computed property that works with the queryId
 const failureReason = computed(() => {
     const failureId = queryId.value;
-    switch(failureId){
+    switch (failureId) {
         case "125":
             return "The requested RVM is currently out of order";
         case "126":
@@ -66,10 +75,15 @@ const failureReason = computed(() => {
     }
 });
 
+const backToHome = () => {
+    transactionStore.endTransaction();
+    router.replace("/homepage");
+}
+
 </script>
 
 <style scoped>
-.fail-layout{
+.fail-layout {
     height: 90vh;
 
     display: flex;
@@ -85,13 +99,14 @@ const failureReason = computed(() => {
 /* .stick-bottom{
     margin-top: auto;
 } */
-.explanation-label{
+.explanation-label {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
 }
-.sadface{
+
+.sadface {
     width: 30vh;
     max-width: 220px;
 }

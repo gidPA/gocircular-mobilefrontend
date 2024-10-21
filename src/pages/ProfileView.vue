@@ -1,40 +1,32 @@
 <template>
     <ion-page>
         <ion-content>
-            <ion-header class="ion-no-border">
-                <ion-avatar slot="end" router-link="/profile-view">
-                    <img src="/src/assets/pp_placeholder.png" />
-                </ion-avatar>
-            </ion-header>
-            <div class="homepage">
-                <div>
-                    <ion-text class="ion-text-center">
-                        <p>Welcome, {{ username }}</p>
-                        <h1>
-                            Your Balance
-                        </h1>
-                        <h1>
-                            {{ accountBalance }}
-                        </h1>
-                    </ion-text>
+            <div class="profile-page">
+                <div class="user-profile">
+                    <ion-avatar>
+                        <img src="/src/assets/pp_placeholder.png" router-link="/profile-view" />
+                    </ion-avatar>
+                    <div>
+                        <ion-text>
+                            <h1>{{ username }}</h1>
+                            <p>{{ email }}</p>
+                        </ion-text>
+                    </div>
                 </div>
 
-
-                <div class="homepage-buttons">
-                    <ion-button expand="full" router-link="/qr-code-scan" class="scan-button">
-                        <h1>Exchange <br> Recyclables</h1>
-                    </ion-button>
-
+                <div class="buttons">
                     <ion-button expand="full">
-                        Exchange Points
+                        Edit Profiles
                     </ion-button>
-
-                    <ion-button expand="full">
-                        View Transaction History
+                    <ion-button expand="full" v-on:click="handleLogout">
+                        Log Out
                     </ion-button>
                 </div>
-
             </div>
+
+
+
+
 
 
         </ion-content>
@@ -52,6 +44,7 @@ import {
     IonAvatar
 } from '@ionic/vue'
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -59,8 +52,11 @@ import { requestWithToken } from '@/helpers/tokenedRequestWrapper';
 
 
 const authStore = useAuthStore();
-const { username } = storeToRefs(authStore);
+const { username, email } = storeToRefs(authStore);
 const accountBalance = ref(0);
+const router = useRouter();
+
+
 
 onIonViewWillEnter(async () => {
     try {
@@ -79,10 +75,15 @@ onIonViewWillEnter(async () => {
     }
 
 })
+
+function handleLogout(){
+    authStore.logout();
+    router.replace("/login");
+}
 </script>
 
 <style scoped>
-.homepage {
+.profile-page {
     display: flex;
     flex-direction: column;
     height: 80vh;
@@ -90,23 +91,33 @@ onIonViewWillEnter(async () => {
     align-items: center;
 
     padding-top: 5%;
+    padding-left: 5%;
+    padding-right: 5%;
 }
 
 .homepage-buttons {
     width: 80vw;
 }
 
-ion-header {
-    padding-top: 20px;
-    padding-bottom: 10px;
-    padding-right: 25px;
-
-    display: flex;
-    justify-content: flex-end;
-}
-
 ion-avatar {
-    width: 45px;
-    height: 45px;
+    width: 75px;
+    height: 75px;
+    margin-right: 7%
 }
+
+.user-profile {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    width: 90%;
+
+}
+
+.buttons {
+    width: 100%;
+}
+
+/* ion-text h1{
+} */
 </style>
