@@ -40,6 +40,54 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/history',
+    name: 'Transaction History',
+    component: () => import('@/pages/history/TransactionHistory.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/history/:id',
+    name: 'Transaction History Details',
+    component: () => import('@/pages/history/TransactionHistoryDetails.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/point_exchange',
+    name: 'Exchange Points',
+    component: () => import('@/pages/pointExchange/ExchangeHistory.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/point_exchange/new',
+    name: 'New Exchange',
+    component: () => import('@/pages/pointExchange/RequestExchange.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/point_exchange/new/success',
+    name: 'Successfully Submitted Exchange Request',
+    component: () => import('@/pages/pointExchange/SuccessfulRequest.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/point_exchange/new/failed',
+    name: 'Failed Submitting Exchange Request',
+    component: () => import('@/pages/pointExchange/FailedRequest.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/qr-code-scan',
     name: 'QR Code Scan',
     component: () => import('@/pages/QRCodeScan.vue'),

@@ -40,7 +40,6 @@ import {
     IonContent,
     IonButton,
     onIonViewWillEnter,
-    IonHeader,
     IonAvatar
 } from '@ionic/vue'
 import { ref } from 'vue';
@@ -76,7 +75,7 @@ onIonViewWillEnter(async () => {
 
 })
 
-function handleLogout(){
+async function handleLogout(){
     authStore.logout();
     router.replace("/login");
 }

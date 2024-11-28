@@ -25,11 +25,11 @@
                         <h1>Exchange <br> Recyclables</h1>
                     </ion-button>
 
-                    <ion-button expand="full">
+                    <ion-button expand="full" router-link=/point_exchange>
                         Exchange Points
                     </ion-button>
 
-                    <ion-button expand="full">
+                    <ion-button expand="full" router-link="/history">
                         View Transaction History
                     </ion-button>
                 </div>

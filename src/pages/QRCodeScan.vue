@@ -93,6 +93,7 @@ function onDetect(detectedCodes: Array<any>) {
     // result.value = JSON.stringify(
     //     detectedCodes.map(code => code.rawValue)
     // );
+    performance.mark('rvmPairingStart');
     rvmID.value = JSON.parse(detectedCodes[0].rawValue).rvmid;
 
 }

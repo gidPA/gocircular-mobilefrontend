@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
                 // Replace with your API endpoint
                 const response = await axios.post(
                     `${import.meta.env.VITE_GOCIRCULAR_API_URL}/user/login`,
-                    JSON.stringify(credentials),
+                    credentials,
                     {
                         headers: {
                             "Content-Type": "application/json",
@@ -63,6 +63,21 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async logout() {
+
+            await axios.post(
+                `${import.meta.env.VITE_GOCIRCULAR_API_URL}/user/logout`,
+                {
+                    userID: this.userid,
+                    refreshToken: this.refreshToken
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.refreshToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                }
+            )
+
             this.accessToken = null;
             this.refreshToken = null;
             this.userid = null;

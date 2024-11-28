@@ -5,6 +5,7 @@ export async function requestWithToken(method: string, url: string, header = {},
     console.log("doing protected request...");
 
     let reqMethod = method.toLowerCase();
+    console.log(reqMethod);
 
     if (reqMethod === 'get' || reqMethod === 'post' || reqMethod === 'put' || reqMethod === 'delete') {
         reqMethod = 'get'

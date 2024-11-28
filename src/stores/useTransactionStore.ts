@@ -22,6 +22,8 @@ interface TransactionState {
     items: Array<RecyclableItem>;
     itemIndex: number,
     transactionDate: Date | null,
+    rvmPairingElapsedTime: number | null;
+    
     // pointsEarned: number;
 
     topicSubscription: Array<string>
@@ -39,6 +41,7 @@ export const useTransactionStore = defineStore('transaction',
             items: [],
             itemIndex: 0,
             transactionDate: null,
+            rvmPairingElapsedTime: null,
             // pointsEarned: 0,
 
             topicSubscription: [],
@@ -48,6 +51,14 @@ export const useTransactionStore = defineStore('transaction',
             pointsEarned:
                 (state) => state.items.map(item => item.itemPrice)
                     .reduce((acc, val) => acc + val, 0),
+            avgLatency:
+                (state) => {
+                    let totalLatency = 0;
+                    for(let i = 0; i < state.items.length; i++){
+                        totalLatency += state.items[i].reportLatency;
+                    }
+                    return totalLatency / state.items.length;
+                }
         },
 
         actions: {
@@ -110,6 +121,10 @@ export const useTransactionStore = defineStore('transaction',
                                 console.log(`Received approval message ${message}`);
                                 this.progressState = Number(message.toString());
                                 clearTimeout(timeoutTimer);
+                                performance.mark('rvmPairingEnd');
+                                performance.measure('rvmPairDuration', 'rvmPairingStart', 'rvmPairingEnd');
+                                this.rvmPairingElapsedTime = performance.getEntriesByName('rvmPairDuration')[0].duration;
+                                performance.clearMeasures();
                             },
                         );
 
@@ -126,11 +141,16 @@ export const useTransactionStore = defineStore('transaction',
                                     itemIndex: this.itemIndex,
                                     itemType: ItemType[messageObj.enteredItem[0]],
                                     itemSize: ItemSize[messageObj.enteredItem[1]],
-                                    itemPrice: 0
+                                    itemPrice: 0,
+                                    reportLatency: 0,
                                 };
                                 this.items[this.itemIndex] = newItem;
                                 console.log(this.items);
+
+                                //mqttHook.publish(`gocircular/rvm/${rvmId}/input/timestamp_ack`, messageObj.enteredItem[3].toString());
                             }
+
+                            
                         );
 
                         await mqttHook.registerEvent(
@@ -152,14 +172,18 @@ export const useTransactionStore = defineStore('transaction',
                                     itemIndex: this.itemIndex,
                                     itemType: ItemType[messageObj.enteredItem[0]],
                                     itemSize: ItemSize[messageObj.enteredItem[1]],
-                                    itemPrice: messageObj.enteredItem[2]
+                                    itemPrice: messageObj.enteredItem[2],
+                                    reportLatency: 0,
                                 };
+
 
                                 //Enter current items with the price
                                 this.items[this.itemIndex] = newItem;
 
                                 //Increment item Index so that next item enters in the next index
                                 this.itemIndex += 1;
+
+                                mqttHook.publish(`gocircular/rvm/${rvmId}/input/timestamp_ack`, messageObj.enteredItem[3].toString());
 
                                 // if(newItem.itemPrice){
                                 //     this.pointsEarned += newItem.itemPrice;
@@ -185,15 +209,20 @@ export const useTransactionStore = defineStore('transaction',
                                 }
 
                                 for (let i = 0; i < itemsData.length; i++) {
+                        
                                     provisionalItems[i] = {
                                         itemIndex: i,
                                         itemType: ItemType[itemsData[i][0]],
                                         itemSize: ItemSize[itemsData[i][1]],
                                         itemPrice: itemsData[i][2],
                                         itemMessage: itemsData[i],
-
+                                        reportLatency: (messageObj.latencyData[i]),
                                     }
+
+                                    
                                 }
+
+                                console.log(provisionalItems);
 
                                 this.items = provisionalItems;
                                 this.progressState = TransactionProgressState.Completed;

@@ -16,9 +16,9 @@ export const ItemSize: Array<string> =
 
 export const ThumbnailLink: Array<string> = 
     [
-        "",
         "/mobile/src/assets/transparent_bottle_minified.png",
         "/mobile/src/assets/transparent_bottle_minified.png",
+        "/mobile/src/assets/colored_bottle.png",
         "/mobile/src/assets/soda_can_minified.png"
     ];
 
@@ -29,6 +29,7 @@ export interface RecyclableItem{
     itemType: string;
     itemSize: string;
     itemPrice: number;
+    reportLatency: number;
 }
 
 export interface RecyclableEntryMessage{
@@ -40,4 +41,5 @@ export interface TransactionReportMessage{
     userId: number;
     rvmId: number;
     recyclableItems: Array<Array<number>>;
+    latencyData: Array<number>;
 }
